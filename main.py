@@ -138,7 +138,7 @@ def log_msg(a: str, newline):
 # initialises things needed for combat encounter to start
 def initialiseCombat(enemy: Enemy):
     # TO DO LEFT:
-    # 3. check for weakness code and set damage multiplier
+    # Check for weakness code and set damage multiplier
 
     # 1. sort all entities in combat
 
@@ -230,7 +230,7 @@ def playerMenu(player: PlayerChar, enemy: Enemy):  # IN PROGRESS
 
 # provides choices to enemy during their turn and acts on them
 def enemyMenu(enemy: Enemy):  # IN PROGRESS
-    print("Menu For: ",enemy.name)
+    print("Menu For: ", enemy.name)
     print("Choose: \n1. Target Move \n2. Sweeping move")
     choice = int(input("Enter corresponding number: "))
 
@@ -327,23 +327,12 @@ def initialise():
 
 
 def main():
-    enemyMenu(mimir)
 
     # initialise()
     # initialiseCombat(sphinx)
 
-    # testing P2E functions
-    # dealDMG_P2E(calculateDMG_P2E(wizard, sphinx), sphinx)
-
-    # testing E2P functions
-    '''playertohit = wizard
-    enemyhitting = sphinx
-    move_num = 2
-    dealDMG_E2P(playertohit, calculateDMG_E2P(enemyhitting, move_num, playertohit), move_num)'''
-
-    """print("Enemy To Specific Player, Move 1: ", calculateDMG_E2P(sphinx,1,wizard))
-    print("Enemy To Each Player, Move 2: ", calculateDMG_E2P(sphinx,2,wizard))"""
-
+    # playerMenu(wizard, mimir)
+    # enemyMenu(mimir)
 
 # run only the main function if the .py file is run
 if __name__ == "__main__":
