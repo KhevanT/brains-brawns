@@ -52,6 +52,10 @@ class PlayerChar:
                         self.move_name, self.move_dmg, self.curr_potionCount]
         self.stats = pd.DataFrame(data=[stats_values], columns=stats_keys)
 
+    def __str__(self): # for print(playerChar)
+        str = "Name: " + self.name + ", " + "Class: " + self.class_type
+        return str
+
     def PrintStats(self):
         print("The stats for " + self.name + " are: \n", self.stats)
 
@@ -82,6 +86,10 @@ class Enemy:
         stats_values = [self.name, self.max_HP, self.curr_HP, self.attack, self.defense, self.speed,
                         self.move1_name, self.move1_dmg, self.move2_name, self.move2_dmg]
         self.stats = pd.DataFrame(data=[stats_values], columns=stats_keys)
+
+    def __str__(self): # for print(playerChar)
+        str = "Name: " + self.name
+        return str
 
     def PrintStats(self):
         print("The stats for " + self.name + " are: \n", self.stats)
@@ -160,12 +168,12 @@ def calculateDMG_E2P(enemy: Enemy, move_num: int, player: PlayerChar) -> int:
 # actually deals damage and updates the enemy's hp
 def dealDMG_E2P(player: PlayerChar, dmg: int, move_num: int):
     if (move_num == 1):  # deal damage only to one player
-        print("This move deals damage only to ",player.name)
+        print("This move deals damage only to ", player.name)
         print(player.name, "'s HP was: ", player.curr_HP)
         player.curr_HP -= dmg
         print(player.name, "'s HP is now: ", player.curr_HP)
         print("Damage dealt was: ", dmg)
-    elif (move_num == 2): # deal damage to everyone
+    elif (move_num == 2):  # deal damage to everyone
         print("This move deals damage to all players")
         for i in playerChars:
             print(i.name, "'s HP was: ", i.curr_HP)
@@ -174,6 +182,57 @@ def dealDMG_E2P(player: PlayerChar, dmg: int, move_num: int):
             print("Damage dealt was: ", dmg)
             print()
 
+
+# initialises things needed for combat encounter to star
+def initialiseCombat(enemy: Enemy):
+
+    # TO DO LEFT:
+    # 3. check for weakness code and set damage multiplier
+
+    # 1. sort all entities in combat
+
+    # create a list for all entities
+    orderOfCombat = [enemy]
+    orderOfCombat += playerChars
+
+    # manually sort list based on speed stat of each member
+    # list is to be in descending order of speed stat
+    # using selection sort
+    # i couldnt find any other way T-T
+    for i in range(len(orderOfCombat)):
+
+        # take element at i as assumed min
+        max = orderOfCombat[i]
+        pos = i
+
+        for j in range(i + 1, len(orderOfCombat)):
+            if max.speed < orderOfCombat[j].speed: # if value is smaller than current min, update it
+                max = orderOfCombat[j]
+                pos = j
+
+        # swap assumed min with actual min
+        if i != j:
+            orderOfCombat[pos] = orderOfCombat[i]
+            orderOfCombat[i] = max
+
+    # print sorted list
+    print("The order of combat is: ")
+    for i in orderOfCombat:
+        print(i, i.speed)
+    print()
+
+    # 2. Restore dead player's health with penalty
+    for i in playerChars:
+        if i.curr_HP <= 0:
+            i.curr_HP = int(i.max_HP * 0.3)   # Restored health == 30% of max
+
+    # checking if it worked
+    print("The health of players after restoring health is: ")
+    for i in orderOfCombat:
+        print(i, ", Current HP:", i.curr_HP, ", Max HP: ", i.max_HP)
+    print()
+
+    # 3. check for weakness code and set damage multiplier
 
 
 def initialise():
@@ -188,15 +247,19 @@ def initialise():
 
 
 def main():
-    initialise()
 
+    # initialise()
+
+    initialiseCombat(sphinx)
+
+    # testing P2E functions
     # dealDMG_P2E(calculateDMG_P2E(wizard, sphinx), sphinx)
 
-    # calculateDMG_E2P(sphinx, 1, wizard)
-    playertohit = wizard
+    # testing E2P functions
+    '''playertohit = wizard
     enemyhitting = sphinx
     move_num = 2
-    dealDMG_E2P(playertohit, calculateDMG_E2P(enemyhitting, move_num, playertohit), move_num)
+    dealDMG_E2P(playertohit, calculateDMG_E2P(enemyhitting, move_num, playertohit), move_num)'''
 
     """print("Enemy To Specific Player, Move 1: ", calculateDMG_E2P(sphinx,1,wizard))
     print("Enemy To Each Player, Move 2: ", calculateDMG_E2P(sphinx,2,wizard))"""
