@@ -3,19 +3,16 @@ import sys
 import os
 import logging
 import random
-
 import numpy as np
 import pandas as pd
-from numpy import ndarray
 
+# other import settings
 pd.set_option('display.max_columns', None)  # disabling truncation of columns in dataframes
 
 # Import stats datasets
 class_stats = pd.read_csv(os.path.join("CSV", "Class_Stats.csv"), header=0, encoding='latin-1')
 enemy_stats = pd.read_csv(os.path.join("CSV", "Enemy_Stats.csv"), header=0, encoding='latin-1')
 
-# global vars
-# to be reworked
 
 # Player Character Class
 class PlayerChar:
@@ -90,6 +87,29 @@ class Enemy:
         print("The stats for " + self.name + " are: \n", self.stats)
 
 
+# global vars
+# to be reworked
+global wizard, archer, knight
+global sphinx, mimir, athena
+global playerChars, enemyChars
+
+# creating player chars
+wizard = PlayerChar("Wizard", 0)
+knight = PlayerChar("Knight", 1)
+archer = PlayerChar("Archer", 2)
+
+# print stats for all characters
+playerChars = [wizard, archer, knight]
+
+# creating enemy chars
+sphinx = Enemy(0)
+mimir = Enemy(1)
+athena = Enemy(2)
+
+# print stats for all characters
+enemyChars = [sphinx, mimir, athena]
+
+
 # display messages in log screen and adds them to text file
 def log_msg(a: str, newline):
     level = logging.INFO
@@ -139,56 +159,44 @@ def calculateDMG_E2P(enemy: Enemy, move_num: int, player: PlayerChar) -> int:
 
 # actually deals damage and updates the enemy's hp
 def dealDMG_E2P(player: PlayerChar, dmg: int, move_num: int):
-
-    if(move_num == 1): # deal damage only to one player
+    if (move_num == 1):  # deal damage only to one player
+        print("This move deals damage only to ",player.name)
         print(player.name, "'s HP was: ", player.curr_HP)
         player.curr_HP -= dmg
         print(player.name, "'s HP is now: ", player.curr_HP)
         print("Damage dealt was: ", dmg)
-    elif(move_num == 2):
-        print() # deal damage to all players
+    elif (move_num == 2): # deal damage to everyone
+        print("This move deals damage to all players")
+        for i in playerChars:
+            print(i.name, "'s HP was: ", i.curr_HP)
+            player.curr_HP -= dmg
+            print(i.name, "'s HP is now: ", i.curr_HP)
+            print("Damage dealt was: ", dmg)
+            print()
+
+
 
 def initialise():
-
-    global wizard, archer, knight
-    global sphinx, mimir, athena
-    global playerChars, enemyChars
-
-    # creating player chars
-    wizard = PlayerChar("Wizard", 0)
-    knight = PlayerChar("Knight", 1)
-    archer = PlayerChar("Archer", 2)
-
-    # print stats for all characters
-    playerChars = [wizard, archer, knight]
+    # printing stats for all entities in game
     for i in playerChars:
         i.PrintStats()
         print()
 
-    # creating enemy chars
-    sphinx = Enemy(0)
-    mimir = Enemy(1)
-    athena = Enemy(2)
-
-    # print stats for all characters
-    enemyChars = [sphinx, mimir, athena]
     for i in enemyChars:
         i.PrintStats()
         print()
 
-def main():
 
+def main():
     initialise()
 
     # dealDMG_P2E(calculateDMG_P2E(wizard, sphinx), sphinx)
 
-    calculateDMG_E2P(sphinx, 1, wizard)
-    dealDMG_E2P(wizard, calculateDMG_E2P(sphinx, 1, wizard), 1)
-
-    # TO DO
-    # Rework E2P functions to take arg as list of players instead of just player
-    # this is so damage can be applied to all players in case of move 2
-    # OR, add Player as an optional argument by making in mandatory only if move_num == 2
+    # calculateDMG_E2P(sphinx, 1, wizard)
+    playertohit = wizard
+    enemyhitting = sphinx
+    move_num = 2
+    dealDMG_E2P(playertohit, calculateDMG_E2P(enemyhitting, move_num, playertohit), move_num)
 
     """print("Enemy To Specific Player, Move 1: ", calculateDMG_E2P(sphinx,1,wizard))
     print("Enemy To Each Player, Move 2: ", calculateDMG_E2P(sphinx,2,wizard))"""
