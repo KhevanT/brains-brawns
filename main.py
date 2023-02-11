@@ -437,7 +437,7 @@ def gameLogic():
 
     # character creation
     log_msg("Character Creation: ")
-    # characterCreation()
+    characterCreation()
     log_msg(" ", 1)
 
     # turns of combat
