@@ -62,6 +62,8 @@ class PlayerChar:
         # roll basic stats using modifiers
         self.max_HP = random.randint(40, 50) + mHP
         self.curr_HP = self.max_HP
+        self.alive = True  # DOA status
+
         self.attack = random.randint(10, 15) + mattack
         self.defense = random.randint(10, 15) + mdefense
         self.speed = random.randint(10, 15) + mspeed
@@ -93,6 +95,15 @@ class PlayerChar:
     def PrintStats(self):
         log_msg("The stats for " + self.name + " are: \n" + self.stats.to_string())
 
+    def isAlive(self):
+        if self.curr_HP > 0:
+            self.alive = True
+        else:
+            self.curr_HP = 0  # min value of curr hp
+            self.alive = False
+
+        return self.alive
+
 
 class Enemy:
     def __init__(self, enemy_num: int):
@@ -104,6 +115,8 @@ class Enemy:
         # read stats from csv
         self.max_HP = enemy_stats.iat[enemy_num, 1]
         self.curr_HP = self.max_HP
+        self.alive = True  # DOA status
+
         self.attack = enemy_stats.iat[enemy_num, 2]
         self.defense = enemy_stats.iat[enemy_num, 3]
         self.speed = enemy_stats.iat[enemy_num, 4]
@@ -137,14 +150,23 @@ class Enemy:
     def PrintStats(self):
         log_msg("The stats for " + self.name + " are: \n" + self.stats.to_string())
 
+    def isAlive(self):
+        if self.curr_HP > 0:
+            self.alive = True
+        else:
+            self.curr_HP = 0  # min value of curr hp
+            self.alive = False
+
+        return self.alive
+
 
 # creating player chars (default values in case of errors with character creation
-classes = ["Wizard", "Archer", "Knight"]
+classes = ["Wizard", "Knight", "Archer"]
 wizard = PlayerChar("Wizard", 0)
 knight = PlayerChar("Knight", 1)
 archer = PlayerChar("Archer", 2)
 # create char list
-playerChars = [wizard, archer, knight]
+playerChars = [wizard, knight, archer]
 
 # creating enemy chars
 sphinx = Enemy(0)
@@ -161,15 +183,15 @@ enemyChars = [sphinx, mimir, athena]
 
 # initialises things needed for combat encounter to start
 def initialiseCombat(enemy: Enemy):
-
     # 1. check for weakness code and set damage multiplier
     log_msg("Would you like to enter the answer to the weakness riddle?: (Y/N)")
     ch = input().upper()
     if ch == 'Y':
         log_msg("Enter the answer to the weakness riddle: ")
-        ans = input()
+        ans = input().lower()
         if ans == enemy.weakness:
-            log_msg("Congratulations! The weakness found is correct! All your attacks will do significantly more damage to the enemy!")
+            log_msg(
+                "Congratulations! The weakness found is correct! All your attacks will do significantly more damage to the enemy!")
             enemy.weaknessActive = True
         else:
             log_msg("The weakness you found was incorrect. You do not get an attack boost for this encounter")
@@ -225,14 +247,18 @@ def initialiseCombat(enemy: Enemy):
 # provides choices to players during their turn and acts on them
 def playerMenu(player: PlayerChar, enemy: Enemy):  # IN PROGRESS
     log_msg("Menu For: " + player.name)
+
     log_msg(player.name + "'s current HP is: " + str(player.curr_HP))
+    log_msg("The enemy " + enemy.name + "'s current HP is: " + str(enemy.curr_HP))
+    global orderOfCombat
+    log_msg(str("Order Of Combat:" + orderOfCombat[0].name + " --> " +
+                orderOfCombat[1].name + " --> " + orderOfCombat[2].name +
+                " --> " + orderOfCombat[3].name))
+
     log_msg("Choose: \n1.Attack \n2.Guard \n3.Heal")
     log_msg("Enter corresponding number: ")
     choice = int(input())
     log_msg("Option Chosen Is: " + str(choice))
-
-    # LEFT TO DO:
-    # check for weakness code damage multipliers
 
     # get guard down if on previously
     if player.guardUp == True:
@@ -248,7 +274,8 @@ def playerMenu(player: PlayerChar, enemy: Enemy):  # IN PROGRESS
 
     elif choice == 2:  # 2. Guard
         player.guardUp = True
-        log_msg(player.name + "'s guard has been raised. If attacked, next before next turn, the damage will be significantly reduced")
+        log_msg(
+            player.name + "'s guard has been raised. If attacked, next before next turn, the damage will be significantly reduced")
     elif choice == 3:  # 3. Heal
 
         # Check if there's any potions left & if health isn't max
@@ -288,9 +315,10 @@ def enemyMenu(enemy: Enemy):
     if choice == 1:  # 1. Target move
         log_msg("\nThe players in combat are: ")
         for i in range(0, len(playerChars)):
-            log_msg(str(str(i) + " " + playerChars[i].name))
+            if playerChars[i].isAlive():
+                log_msg(str(str(i + 1) + " " + playerChars[i].name))
         log_msg("Enter number corresponding to player for targeting: ")
-        target = int(input())
+        target = int(input()) - 1
         player = playerChars[target]
 
     if choice == 1 or choice == 2:
@@ -414,7 +442,7 @@ def characterCreation():
     archer = PlayerChar(names[2], 2)
 
     # create char list
-    playerChars = [wizard, archer, knight]
+    playerChars = [wizard, knight, archer]
 
     # printing stats for all entities in game
     log_msg("The player stats are: ")
@@ -431,56 +459,79 @@ def characterCreation():
 
 
 def gameLogic():
-
     # title
     log_msg("Welcome to Brains + Brawns!")
 
     # character creation
     log_msg("Character Creation: ")
-    characterCreation()
+    # characterCreation()
     log_msg(" ", 1)
+
+    # function to check if all players are alive or not
+    # VERY INEFFICIENT
+    def isPartyAlive():
+        global playerChars
+        # playerChars[0].isAlive() and playerChars[1].isAlive() and playerChars[2].isAlive()
+        partyalive = not all(player.isAlive() == False for player in playerChars)
+        return partyalive
 
     # turns of combat
     global enemyChars
+
+    # reduce all players hp to 1 for testing
+    # TESTING
+    for i in playerChars:
+        i.curr_HP = 1
+
     for enemy in enemyChars:  # loop code for number of enemies
+        if isPartyAlive():
+            log_msg("Encounter With " + enemy.name)
 
-        log_msg("Encounter With " + enemy.name)
+            # ask if combat or riddle
+            log_msg("Will you: \n1. Solve Riddle & Skip Combat \n2. Engage In Combat")
+            log_msg("Enter The Menu Choice: ")
+            choice = int(input())
+            if choice == 1:
+                log_msg("The party has decided to solve " + enemy.name + "'s riddle and skip combat")
+                log_msg(" ")
+                continue  # skip to next loop
 
-        # ask if combat or riddle
-        log_msg("Will you: \n1. Solve Riddle & Skip Combat \n2. Engage In Combat")
-        log_msg("Enter The Menu Choice: ")
-        choice = int(input())
-        if choice == 1:
-            log_msg("The party has decided to solve " + enemy.name + "'s riddle and skip combat")
-            log_msg(" ")
-            continue  # skip to next loop
+            # instead of choice 2, just directly go to next bit since if its choice 1, the code below will be skipped
+            log_msg("The party has decided to engage in combat with " + enemy.name, 1)
+            initialiseCombat(enemy)  # initiate combat
 
-        # instead of choice 2, just directly go to next bit since if its choice 1, the code below will be skipped
-        log_msg("The party has decided to engage in combat with " + enemy.name)
-        initialiseCombat(enemy)  # initiate combat
+            # to do left: check for player health and terminate code accordingly
+            while enemy.alive and isPartyAlive():  # stop all turns if enemy is dead
+                for i in orderOfCombat:
+                    if enemy.isAlive() and isPartyAlive():  # have next turn only is enemy is alive
+                        if i.isAlive():  # give options only if player is alive
+                            log_msg(" ")  # print menu corresponding to type of entity
+                            if type(i) == Enemy:
+                                enemyMenu(i)
+                            elif type(i) == PlayerChar:
+                                playerMenu(i, enemy)
 
-        # to do left: check for player health and terminate code accordingly
-        while enemy.curr_HP > 0: # stop all turns if enemy is dead
-            for i in orderOfCombat:
-                if enemy.curr_HP > 0: # have next turn only is enemy is alive
-                    if i.curr_HP > 0:  # give options only if health is > 0
-                        # print menu corresponding to type of entity
-                        log_msg(" ")
-                        if type(i) == Enemy:
-                            enemyMenu(i)
-                        elif type(i) == PlayerChar:
-                            playerMenu(i, enemy)
-                    else:
-                        log_msg(i.name + "'s HP is now 0. They cannot take their turn.")
-                else:
-                    log_msg(enemy.name + "'s HP is now 0. They have been defeated! Congratulations!")
-                    log_msg("Please collect your treasure piece and next set of riddles!")
-                    log_msg(" ")
-                    break  # break out of for loop used for turns
+                        else:  # dead player can't take their turn
+                            log_msg(i.name + "'s HP is 0. They cannot take their turn.")
+                    elif not enemy.isAlive():  # WIN!
+                        break  # break out of for loop used for turns
+                    elif not isPartyAlive():  # LOSE :(((
+                        break  # break out of for loop used for turns'
+
+            if not enemy.isAlive():  # WIN!
+                log_msg(enemy.name + "'s HP is now 0. They have been defeated! Congratulations!")
+                log_msg("Please collect your treasure piece and next set of riddles!")
+                log_msg(" ")
+            elif not isPartyAlive():  # LOSE :(((
+                log_msg(
+                    "All your party members have lost their HP. You have lost the game and must return to base location")
+                log_msg("Make sure to stop your team's timer and carry all your treasure pieces with you to base")
+                log_msg("Thank you for playing!")
 
 
 def main():
     gameLogic()
+
 
 # run only the main function if the .py file is run
 if __name__ == "__main__":
