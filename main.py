@@ -265,10 +265,12 @@ def initialiseCombat(enemy: Enemy):
         log_msg((i.name + ", Speed: " + str(i.speed)))
     log_msg(" ")
 
-    # 3. Restore dead player's health with penalty
+    # 3. Restore dead player's health with penalty and alive's health fully
     for i in playerChars:
         if i.curr_HP <= 0:
             i.curr_HP = int(i.max_HP * 0.3)  # Restored health == 30% of max
+        else:
+            i.curr_HP = i.max_HP
 
     # reset all unused guards
     for i in playerChars:
