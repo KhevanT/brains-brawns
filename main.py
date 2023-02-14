@@ -19,7 +19,7 @@ enemy_stats = pd.read_csv(os.path.join("CSV", "Enemy_Stats.csv"), header=0, enco
 
 # global vars
 potionHealth = 10
-attackBoost = 1.5
+attackBoost = 1.25
 
 # I - Logging & Output Functions
 
@@ -181,6 +181,41 @@ enemyChars = [sphinx, mimir, athena]
 
 # III - Combat Related Functions
 
+
+def characterCreation():
+    names = []
+    global classes
+    for i in classes:
+        log_msg("For class: " + i)
+        log_msg("Enter Name: ")
+        name = input()
+        log_msg("The " + i + " of the party is: " + name)
+        names.append(name)
+        log_msg(" ")
+
+    # creating player chars
+    global wizard, knight, archer, playerChars
+    wizard = PlayerChar(names[0], 0)
+    knight = PlayerChar(names[1], 1)
+    archer = PlayerChar(names[2], 2)
+
+    # create char list
+    playerChars = [wizard, knight, archer]
+
+    # printing stats for all entities in game
+    log_msg("The player stats are: ")
+    for i in playerChars:
+        i.PrintStats()
+        log_msg(" ")
+    log_msg("\n")
+
+    '''log_msg("The stats for the enemies are: ")
+    for i in enemyChars:
+        i.PrintStats()
+        log_msg(" ")
+    log_msg("\n")'''
+
+
 # initialises things needed for combat encounter to start
 def initialiseCombat(enemy: Enemy):
     # 1. check for weakness code and set damage multiplier
@@ -235,6 +270,10 @@ def initialiseCombat(enemy: Enemy):
         if i.curr_HP <= 0:
             i.curr_HP = int(i.max_HP * 0.3)  # Restored health == 30% of max
 
+    # reset all unused guards
+    for i in playerChars:
+        i.guardUp = False
+
     # checking if it worked
     log_msg("The health of players with 0 HP from previous combat has been restored with a penalty")
     log_msg(" ")
@@ -245,23 +284,33 @@ def initialiseCombat(enemy: Enemy):
 
 
 # provides choices to players during their turn and acts on them
-def playerMenu(player: PlayerChar, enemy: Enemy):  # IN PROGRESS
-    log_msg("Menu For: " + player.name)
-
-    log_msg(player.name + "'s current HP is: " + str(player.curr_HP))
-    log_msg("The enemy " + enemy.name + "'s current HP is: " + str(enemy.curr_HP))
+def playerMenu(player: PlayerChar, enemy: Enemy):
     global orderOfCombat
-    log_msg(str("Order Of Combat:" + orderOfCombat[0].name + " --> " +
-                orderOfCombat[1].name + " --> " + orderOfCombat[2].name +
-                " --> " + orderOfCombat[3].name))
 
-    log_msg("Choose: \n1.Attack \n2.Guard \n3.Heal")
-    log_msg("Enter corresponding number: ")
-    choice = int(input())
+    while True:
+        log_msg("Menu For: " + player.name)
+
+        log_msg(player.name + "'s current HP is: " + str(player.curr_HP))
+        log_msg("The enemy " + enemy.name + "'s current HP is: " + str(enemy.curr_HP))
+        log_msg("Your Potion Count: " + str(player.curr_potionCount))
+
+        log_msg(str("Order Of Combat:" + orderOfCombat[0].name + " --> " +
+                    orderOfCombat[1].name + " --> " + orderOfCombat[2].name +
+                    " --> " + orderOfCombat[3].name))
+
+        log_msg("Choose: \n1.Attack \n2.Guard \n3.Heal")
+        log_msg("Enter corresponding number: ")
+        choice = int(input())
+        # validating menu input
+        if choice in range(1,4):
+            break
+        else:
+            log_msg("User input is incorrect, please enter again.")
+
     log_msg("Option Chosen Is: " + str(choice))
 
     # get guard down if on previously
-    if player.guardUp == True:
+    if player.guardUp:
         player.guardUp = False
         log_msg(player.name + "'s guard was previously up. It has now been lowered to normal.")
 
@@ -298,15 +347,22 @@ def playerMenu(player: PlayerChar, enemy: Enemy):  # IN PROGRESS
 
 # provides choices to enemy during their turn and acts on them
 def enemyMenu(enemy: Enemy):
-    log_msg("Menu For: " + enemy.name)
-    log_msg(enemy.name + "'s current HP is: " + str(enemy.curr_HP))
-    log_msg("Choose: \n1. Target Move \n2. Sweeping Move \n3. Guard")
-    log_msg("Enter corresponding number:")
-    choice = int(input())
-    log_msg("Option Chosen Is: " + str(choice))
+    while True:
+        log_msg("Menu For: " + enemy.name)
+        log_msg(enemy.name + "'s current HP is: " + str(enemy.curr_HP))
+        log_msg("Choose: \n1. Target Move \n2. Sweeping Move \n3. Guard")
+        log_msg("Enter corresponding number:")
+        choice = int(input())
+        log_msg("Option Chosen Is: " + str(choice))
+
+        # validating menu input
+        if choice in range(1,4):
+            break
+        else:
+            log_msg("User input is incorrect, please enter again.")
 
     # get guard down if on previously
-    if enemy.guardUp == True:
+    if enemy.guardUp:
         enemy.guardUp = False
         log_msg(enemy.name + "'s guard was previously up. It has now been lowered to normal.")
 
@@ -319,6 +375,14 @@ def enemyMenu(enemy: Enemy):
                 log_msg(str(str(i + 1) + " " + playerChars[i].name))
         log_msg("Enter number corresponding to player for targeting: ")
         target = int(input()) - 1
+
+        # validating menu input
+        if target in range(3):
+            pass
+        else:
+            log_msg("User input is incorrect, please enter again from the start")
+            enemyMenu(enemy)
+
         player = playerChars[target]
 
     if choice == 1 or choice == 2:
@@ -348,16 +412,16 @@ def dealDMG_P2E(dmg: int, enemy: Enemy):
 
     # reduce damage if guard is up
     if enemy.guardUp:
-        dmg = dmg / enemy.tempDefenseBoost
+        dmg = int(dmg / enemy.tempDefenseBoost)
         log_msg(enemy.name + " had their guard up. Their damage taken was reduced.")
         enemy.guardUp = False
 
     # check for weakness code boost
     if enemy.weaknessActive == True:
-        dmg = dmg * attackBoost
+        dmg = int(dmg * attackBoost)
 
     # decrement health
-    enemy.curr_HP -= dmg
+    enemy.curr_HP -= int(dmg)
     log_msg("Damage dealt was: " + str(dmg))
     log_msg((enemy.name + "'s HP is now: " + str(enemy.curr_HP)))
     log_msg(" ", 1)
@@ -367,7 +431,7 @@ def dealDMG_P2E(dmg: int, enemy: Enemy):
 # uses enemy's attack and dmg along with player's defense + some randomisation
 def calculateDMG_E2P(enemy: Enemy, move_num: int, player: PlayerChar) -> int:
     # random factor
-    randomfac = random.uniform(0.1, 0.45)
+    randomfac = random.uniform(0.2, 0.45)
 
     #  pick move number (thus dmg) based on move_num arg
     if move_num == 1:
@@ -424,39 +488,6 @@ def dealDMG_E2P(enemy: Enemy, player: PlayerChar, dmg: int, move_num: int):
 
 # IV - Functions Related To Start Of Whole Program
 
-def characterCreation():
-    names = []
-    global classes
-    for i in classes:
-        log_msg("For class: " + i)
-        log_msg("Enter Name: ")
-        name = input()
-        log_msg("The " + i + " of the party is: " + name)
-        names.append(name)
-        log_msg(" ")
-
-    # creating player chars
-    global wizard, knight, archer, playerChars
-    wizard = PlayerChar(names[0], 0)
-    knight = PlayerChar(names[1], 1)
-    archer = PlayerChar(names[2], 2)
-
-    # create char list
-    playerChars = [wizard, knight, archer]
-
-    # printing stats for all entities in game
-    log_msg("The player stats are: ")
-    for i in playerChars:
-        i.PrintStats()
-        log_msg(" ")
-    log_msg("\n")
-
-    '''log_msg("The stats for the enemies are: ")
-    for i in enemyChars:
-        i.PrintStats()
-        log_msg(" ")
-    log_msg("\n")'''
-
 
 def gameLogic():
     # title
@@ -480,17 +511,26 @@ def gameLogic():
 
     # reduce all players hp to 1 for testing
     # TESTING
-    for i in playerChars:
-        i.curr_HP = 1
+    '''for i in playerChars:
+        i.curr_HP = 1'''
 
     for enemy in enemyChars:  # loop code for number of enemies
         if isPartyAlive():
+
             log_msg("Encounter With " + enemy.name)
 
-            # ask if combat or riddle
-            log_msg("Will you: \n1. Solve Riddle & Skip Combat \n2. Engage In Combat")
-            log_msg("Enter The Menu Choice: ")
-            choice = int(input())
+            while True:
+                # ask if combat or riddle
+                log_msg("Will you: \n1. Solve Riddle & Skip Combat \n2. Engage In Combat")
+                log_msg("Enter The Menu Choice: ")
+                choice = int(input())
+
+                # validating menu input
+                if choice == 1 or choice == 2:
+                    break
+                else:
+                    log_msg("User input is incorrect, please enter again.")
+
             if choice == 1:
                 log_msg("The party has decided to solve " + enemy.name + "'s riddle and skip combat")
                 log_msg(" ")
