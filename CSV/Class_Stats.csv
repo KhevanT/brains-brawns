@@ -1,4 +1,4 @@
 Class Type,MHP,MAttack,MDefense,MSpeed,Move Name,Move DMG,Max Potion Count
-Wizard,-5,5,-2,2,Fireball,10,4
+Wizard,-5,5,-2,2,Fireball,10,3
 Knight,5,3,4,-5,Steel Slash,10,3
 Archer,0,-2,-2,4, Arrow Flurry,10,3

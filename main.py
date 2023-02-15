@@ -270,8 +270,8 @@ def initialiseCombat(enemy: Enemy):
     for i in playerChars:
         if i.curr_HP <= 0:
             i.curr_HP = int(i.max_HP * 0.3)  # Restored health == 30% of max
-        else:
-            i.curr_HP = i.max_HP
+        elif i.curr_HP < i.max_HP/2: # health upto half if less than half
+            i.curr_HP = i.max_HP/2
 
     # reset all unused guards
     for i in playerChars:
@@ -279,7 +279,7 @@ def initialiseCombat(enemy: Enemy):
 
     # checking if it worked
     log_msg("The health of players with 0 HP from previous combat has been restored with a penalty")
-    log_msg("The health of players who did not die in previous combat has been restored to maximum")
+    log_msg("The health of players whose did not die in previous combat and health was less than half has been restored upto half")
     log_msg(" ")
     '''log_msg("The health of players after restoring health is: ")
     for i in orderOfCombat:
