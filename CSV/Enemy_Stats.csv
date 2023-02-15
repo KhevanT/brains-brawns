@@ -1,4 +1,4 @@
 Name,Max HP,Attack,Defense,Speed,Move 1 Name,Move 1 Damage,Move 2 Name,Move 2 Damage,Weakness
-Sphinx,100,20,15,7,Lorem,22,Ipsum,15,oedipus
-Mimir,100,23,15,14,Barki,24,Þruma,15,erudition
-Athena,100,27,15,20,Lorem,28,Ipsum,15,arachne
+Sphinx,100,20,15,7,Thunder Fang,20,Sandstorm,11,oedipus
+Mimir,100,23,15,14,Barki,22,Þruma,12,erudition
+Athena,100,24,15,20,Shield Bash,22,Sword Dance,13,arachne

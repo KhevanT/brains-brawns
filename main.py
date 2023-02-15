@@ -60,13 +60,14 @@ class PlayerChar:
         mspeed = class_stats.iat[class_num, 4]
 
         # roll basic stats using modifiers
-        self.max_HP = random.randint(40, 50) + mHP
+        # CANCELLED ROLLING, NOW CONSTANT
+        self.max_HP = 45 + mHP
         self.curr_HP = self.max_HP
         self.alive = True  # DOA status
 
-        self.attack = random.randint(10, 15) + mattack
-        self.defense = random.randint(10, 15) + mdefense
-        self.speed = random.randint(10, 15) + mspeed
+        self.attack = 12 + mattack
+        self.defense = 13 + mdefense
+        self.speed = 12 + mspeed
 
         # move and damage
         self.move_name = class_stats.iat[class_num, 5]
@@ -278,6 +279,7 @@ def initialiseCombat(enemy: Enemy):
 
     # checking if it worked
     log_msg("The health of players with 0 HP from previous combat has been restored with a penalty")
+    log_msg("The health of players who did not die in previous combat has been restored to maximum")
     log_msg(" ")
     '''log_msg("The health of players after restoring health is: ")
     for i in orderOfCombat:
@@ -495,9 +497,14 @@ def gameLogic():
     # title
     log_msg("Welcome to Brains + Brawns!")
 
+    log_msg("Please enter your team name: ")
+    teamname = input()
+
+
     # character creation
+    log_msg("Team " + teamname + "'s Quest")
     log_msg("Character Creation: ")
-    # characterCreation()
+    characterCreation()
     log_msg(" ", 1)
 
     # function to check if all players are alive or not
@@ -563,6 +570,7 @@ def gameLogic():
             if not enemy.isAlive():  # WIN!
                 log_msg(enemy.name + "'s HP is now 0. They have been defeated! Congratulations!")
                 log_msg("Please collect your treasure piece and next set of riddles!")
+                log_msg("If this was your last encounter, please stop your team's timer and return to base location.")
                 log_msg(" ")
             elif not isPartyAlive():  # LOSE :(((
                 log_msg(
