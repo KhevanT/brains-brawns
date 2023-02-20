@@ -25,8 +25,8 @@ attackBoost = 1.25
 
 # clear log file from previous run of code
 # NOT WORKING
-if os.path.exists('Brains+BrawnsBattleEncounter.txt'):
-    os.remove('Brains+BrawnsBattleEncounter.txt')
+if os.path.exists('BrainsBrawnsBattleEncounter.txt'):
+    os.remove('BrainsBrawnsBattleEncounter.txt')
 
 
 # display messages in log screen and adds them to text file

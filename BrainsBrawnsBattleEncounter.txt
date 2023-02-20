@@ -1,0 +1,38 @@
+Welcome to Brains + Brawns!
+Please enter your team name: 
+Team Star's Quest
+Character Creation: 
+For class: Wizard
+Enter Name: 
+The Wizard of the party is: 1
+ 
+For class: Knight
+Enter Name: 
+The Knight of the party is: 6
+ 
+For class: Archer
+Enter Name: 
+The Archer of the party is: 1
+ 
+The player stats are: 
+The stats for 1 are: 
+  Name   Class  Max HP  Current HP  Attack  Defense  Speed Move Name  Move Damage  Potion Count
+0    1  Wizard      40          40      17       11     14  Fireball           10             3
+ 
+The stats for 6 are: 
+  Name   Class  Max HP  Current HP  Attack  Defense  Speed    Move Name  Move Damage  Potion Count
+0    6  Knight      50          50      15       17      7  Steel Slash           10             3
+ 
+The stats for 1 are: 
+  Name   Class  Max HP  Current HP  Attack  Defense  Speed      Move Name  Move Damage  Potion Count
+0    1  Archer      45          45      10       11     16   Arrow Flurry           10             3
+ 
+
+
+ 
+ 
+Encounter With Sphinx
+Will you: 
+1. Solve Riddle & Skip Combat 
+2. Engage In Combat
+Enter The Menu Choice: 
